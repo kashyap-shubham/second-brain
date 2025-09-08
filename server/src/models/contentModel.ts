@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 
 
 const ContentSchema = new mongoose.Schema({
@@ -14,8 +14,13 @@ const ContentSchema = new mongoose.Schema({
         type: String,
     },
     
-    creator: {
-        type: String,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+    },
+
+    tags: {
+        type: [String],
+        default: []
     }
 }, {
     timestamps: true
