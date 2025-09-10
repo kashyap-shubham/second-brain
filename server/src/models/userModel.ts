@@ -1,7 +1,19 @@
-import mongoose from "mongoose";
+import mongoose, {Document, Schema} from "mongoose";
+import { isContext } from "vm";
 
 
-const UserSchema = new mongoose.Schema({
+export interface IContent {
+    userId: string;
+    url: string;
+    title: string;
+    text: string;
+    createAt: Date;
+}
+
+
+export type IContentDocument = IContent & Document;
+
+const UserSchema: IContentDocument = new mongoose.Schema({
     userName: {
         type: String,
         required: true

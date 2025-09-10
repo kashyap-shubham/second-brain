@@ -25,7 +25,7 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/content", contentRouter);
 
 
-app.use(errroHandler);
+app.use(errorHandler);
 
 
 const startSever = async () => {
