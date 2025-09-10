@@ -1,35 +1,31 @@
-import mongoose, {Document, Schema} from "mongoose";
-import { isContext } from "vm";
+import mongoose, { Document, Schema, Model } from "mongoose";
 
 
-export interface IContent {
-    userId: string;
-    url: string;
-    title: string;
-    text: string;
-    createAt: Date;
+export interface IUser {
+    password: string;
+    email: string;
+    userName: string;
+    createdAt: Date;
+    updateAt: Date;
 }
 
+export type IUserDocument = IUser & Document;
 
-export type IContentDocument = IContent & Document;
 
-const UserSchema: IContentDocument = new mongoose.Schema({
-    userName: {
-        type: String,
-        required: true
+export type IUserModel = Model<IUserDocument>;
+
+
+const UserSchema = new Schema<IUserDocument>(
+    {
+        userName: { type: String},
+        password: { type: String},
+        email: { type: String, unique: true},
     },
-
-    email: {
-        type: String,
-        required: true
-    },
-
-    password: {
-        type: String,
-        required: true
-    }
-
-})
+    { timestamps: true }
+);
 
 
-const User = mongoose.model("user", UserSchema);
+const User = mongoose.model<IUserDocument, IUserModel>(
+    "User", 
+    UserSchema
+);

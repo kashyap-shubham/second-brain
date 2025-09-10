@@ -2,7 +2,7 @@ import mongoose, { Document, Schema, Model } from "mongoose";
 
 
 export interface IContent {
-  userId: mongoose.Types.ObjectId;
+  userId: mongoose.Schema.Types.ObjectId;
   type: string;     // e.g., "twitter", "blog", "fb"
   url: string;
   title: string;
