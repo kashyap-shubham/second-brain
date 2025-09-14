@@ -5,7 +5,7 @@ export const signupSchema = z.object({
     body: z.object({
         userName: z.string().min(3, "UserName must be atleast 3 characters"),
         email: z.string().email("Invalid email address"),
-        password: z.string().min(6, "Password must be atleast 6 characters long");
+        password: z.string().min(6, "Password must be atleast 6 characters long"),
     }),
 });
 
@@ -13,8 +13,8 @@ export const signupSchema = z.object({
 // signin schema
 export const signinSchema = z.object({
     body: z.object({
-        email: z.string().email("Invalid email address");
-        password: z.string().min(6, "Password must be atleast 6 character long");
+        email: z.string().email("Invalid email address"),
+        password: z.string().min(6, "Password must be atleast 6 character long"),
     }),
 });
 
