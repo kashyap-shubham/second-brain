@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Model } from "mongoose";
+import mongoose, { Document, Schema, Model, Types } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { ApiError } from "../utils/apiError";
@@ -13,7 +13,11 @@ export interface IUser {
     updateAt: Date;
 }
 
-export type IUserDocument = IUser & Document;
+export type IUserDocument = IUser & Document & {
+    _id: Types.ObjectId;
+    comparePassword(enteredPassword: string): Promise<boolean>;
+    generateAuthToken(): string;
+};
 
 
 export type IUserModel = Model<IUserDocument>;
@@ -72,7 +76,7 @@ UserSchema.methods.generateAuthToken = function(this: IUserDocument): string {
         if (!secret) {
             throw new ApiError("Failed to get the secret", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
+
         const options: SignOptions = { expiresIn: "1h" };
 
         return jwt.sign(payload, secret, options);
