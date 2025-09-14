@@ -8,6 +8,8 @@ import cookieParser from "cookie-parser";
 import { database } from "./config/db";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import { ErrorHandler } from "./middlewares/errorHandler";
+import userRouter from "./routes/user.routes";
 
 
 const app = express();
@@ -25,7 +27,7 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/content", contentRouter);
 
 
-app.use(errorHandler);
+app.use(ErrorHandler.handle);
 
 
 const startSever = async () => {
