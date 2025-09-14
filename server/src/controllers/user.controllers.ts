@@ -1,13 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import { IUserService } from "../services/user.service";
-import { User } from "../models/user.model";
 import { HttpStatus } from "../constants/httpStatus";
 import { ResponseHandler } from "../utils/ResponseHandler";
+import { SignupInput, SigninInput } from "../schema/user.schema";
+
+
+
+type TypedRequestBody<T> = Request<{}, {}, T>;
 
 
 export class UserController {
     
-    private readonly userServices;
+    private readonly userServices: IUserService;
 
     constructor(userServices: IUserService  ) {
         this.userServices = userServices;
@@ -18,7 +22,7 @@ export class UserController {
     }
     
     // signup controller
-    public async signup(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public async signup(req: TypedRequestBody<SignupInput>, res: Response, next: NextFunction): Promise<void> {
         try {
             const { email, password, userName} = req.body;
 
@@ -37,7 +41,7 @@ export class UserController {
     
     
     // signin controller
-    public async signin(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public async signin(req: TypedRequestBody<SigninInput>, res: Response, next: NextFunction): Promise<void> {
         try {
             const {email, password} = req.body;
 

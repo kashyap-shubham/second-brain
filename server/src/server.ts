@@ -1,7 +1,3 @@
-import mongoose from "mongoose";
-import z from "zod";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import express from "express";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
@@ -10,6 +6,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { ErrorHandler } from "./middlewares/errorHandler";
 import userRouter from "./routes/user.routes";
+import contentRouter from "./routes/content.routes";
 
 
 const app = express();

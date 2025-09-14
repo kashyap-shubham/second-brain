@@ -16,7 +16,7 @@ userRouter.route("/signup").post(validate(signupSchema), userController.signup);
 
 // @route Post /api/v1/user/sigin
 // @desc sinin registered users
-userRouter.route("/login").post(validate(signinSchema), userController.signin)
+userRouter.route("/signin").post(validate(signinSchema), userController.signin)
 
 
 
