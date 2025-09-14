@@ -1,5 +1,5 @@
 import express from "express";
-import { UserController} from "../controllers/user.controllers";
+import { UserController} from "../controllers/user.controller";
 import { Validator } from "../middlewares/validator";
 import { signinSchema, signupSchema } from "../schema/user.schema";
 
