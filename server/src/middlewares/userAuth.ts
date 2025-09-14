@@ -9,7 +9,7 @@ export interface AuthRequest extends Request {
 }
 
 
-export function userAuth(req: Request, res: Response, next: NextFunction): void {
+export function userAuth(req: AuthRequest, res: Response, next: NextFunction): void {
     try {
         const authHeader = req.headers["authorization"];
         const token = authHeader?.split(" ")[1];
@@ -23,8 +23,8 @@ export function userAuth(req: Request, res: Response, next: NextFunction): void 
             throw new ApiError("Jwt secret not configured", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        const decode = jwt.verify(token, secret);
-        req.user = decode;
+        const decoded = jwt.verify(token, secret);
+        req.user = decoded;
 
         next();
     } catch(error) {
