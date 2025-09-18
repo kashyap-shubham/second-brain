@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
 import { IContentService } from "../services/content.service";
-import { TypedRequestBody } from "./user.controller"; // reuse typed request
+import { TypedRequestBody } from "./user.controller";
 import { CreateContentInput, UpdateContentInput } from "../schemas/content.schema";
 import { ResponseHandler } from "../utils/ResponseHandler";
 
@@ -16,15 +16,13 @@ export class ContentController {
     this.updateContent = this.updateContent.bind(this);
     this.deleteContent = this.deleteContent.bind(this);
     this.searchContent = this.searchContent.bind(this);
+    this.makeShareable = this.makeShareable.bind(this);
+    this.getSharedContent = this.getSharedContent.bind(this);
   }
 
-  public async createContent(
-    req: TypedRequestBody<CreateContentInput>,
-    res: Response,
-    next: NextFunction
-  ) {
+  public async createContent(req: TypedRequestBody<CreateContentInput>, res: Response, next: NextFunction) {
     try {
-      const userId = (req as any).user?.id; // from JWT
+      const userId = (req as any).user?.id;
       const content = await this.contentService.createContent({ ...req.body, userId });
       ResponseHandler.success(res, 201, content, "Content created successfully");
     } catch (err) {
@@ -74,6 +72,24 @@ export class ContentController {
       const userId = req.user?.id;
       const contents = await this.contentService.searchContent(userId, req.query.q as string);
       ResponseHandler.success(res, 200, contents, "Search results retrieved successfully");
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async makeShareable(req: any, res: Response, next: NextFunction) {
+    try {
+      const content = await this.contentService.makeContentShareable(req.params.id);
+      ResponseHandler.success(res, 200, { shareId: content.shareId, url: `/share/${content.shareId}` }, "Content is now shareable");
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getSharedContent(req: any, res: Response, next: NextFunction) {
+    try {
+      const content = await this.contentService.getContentByShareId(req.params.shareId);
+      ResponseHandler.success(res, 200, content, "Shared content retrieved successfully");
     } catch (err) {
       next(err);
     }

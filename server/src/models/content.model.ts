@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema, Model } from "mongoose";
-
+import { v4 as uuidv4 } from "uuid";
 
 export interface IContent {
   userId: mongoose.Schema.Types.ObjectId;
@@ -8,6 +8,8 @@ export interface IContent {
   title: string;
   text?: string;
   tags: string[];
+  shareId?: string;
+  isShared?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,9 +29,21 @@ const contentSchema = new Schema<IContentDocument>(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     text: { type: String },
     tags: { type: [String], default: [] },
+    shareId: { type: String, unique: true, sparse: true }, 
+    isShared: { type: Boolean, default: false },
   },
   { timestamps: true } // adds createdAt and updatedAt automatically
 );
+
+
+// Generate shareId automatically if content is shared
+contentSchema.pre("save", function (next) {
+  const content = this as IContentDocument;
+  if (content.isShared && !content.shareId) {
+    content.shareId = uuidv4();
+  }
+  next();
+});
 
 // Optional: full-text search
 contentSchema.index({ title: "text", text: "text" });
