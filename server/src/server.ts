@@ -1,43 +1,59 @@
-import express from "express";
+import express, { Application } from "express";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { database } from "./config/db";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 import { ErrorHandler } from "./middlewares/errorHandler";
 import userRouter from "./routes/user.routes";
 import contentRouter from "./routes/content.routes";
 
+export class Server {
+  public app: Application;
+  private port: number | string;
 
-const app = express();
-const port = process.env.PORT || 4000;
+  constructor(port: number | string = 4000) {
+    this.app = express();
+    this.port = port;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+    this.initializeMiddlewares();
+    this.initializeRoutes();
+    this.initializeErrorHandling();
+  }
 
-app.use(express.json());
-app.use(helmet());
-app.use(cookieParser());
+  private initializeMiddlewares(): void {
+    this.app.use(express.json());
+    this.app.use(helmet());
+    this.app.use(cookieParser());
+  }
 
+  private initializeRoutes(): void {
+    this.app.use("/api/v1/user", userRouter);
+    this.app.use("/api/v1/content", contentRouter);
+  }
 
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/content", contentRouter);
+  private initializeErrorHandling(): void {
+    this.app.use(ErrorHandler.handle);
+  }
 
+  public async start(): Promise<void> {
+    try {
+      await database.connect();
 
-app.use(ErrorHandler.handle);
-
-
-const startSever = async () => {
-    await database.connect();
-
-    if (!database.isConnected()) {
+      if (!database.isConnected()) {
+        console.error("Database connection failed, server not started");
         return;
-    }
+      }
 
-    app.listen(port, () => console.log(`Server Started at port: ${port}`));
+      this.app.listen(this.port, () => {
+        console.log(`Server started at port: ${this.port}`);
+      });
+    } catch (error) {
+      console.error("Server failed to start:", error);
+    }
+  }
 }
 
-
-if (process.argv[1] === __filename) {
-    startSever();
+// Auto-start server if executed directly
+if (process.argv[1].includes("server.ts")) {
+  const server = new Server(process.env.PORT || 4000);
+  server.start();
 }

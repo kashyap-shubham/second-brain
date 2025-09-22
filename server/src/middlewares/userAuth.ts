@@ -4,6 +4,12 @@ import { ApiError } from "../utils/apiError";
 import { HttpStatus } from "../constants/httpStatus";
 
 
+export interface JwtUserPayload extends JwtPayload {
+  id: string;
+  email: string;
+}
+
+
 export interface AuthRequest extends Request {
     user?: JwtPayload | string;
 }

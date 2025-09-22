@@ -2,6 +2,7 @@ import express from "express";
 import { UserController} from "../controllers/user.controller";
 import { Validator } from "../middlewares/validator";
 import { signinSchema, signupSchema } from "../schema/user.schema";
+import { UserService } from "../services/user.service";
 
 const userRouter = express.Router();
 

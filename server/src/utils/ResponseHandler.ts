@@ -1,24 +1,24 @@
 import { Response } from "express";
-import { HttpStatus, HttpStatusMessage, HttpStatusCode } from "../constants/httpStatus";
+import { HttpStatusMessage, HttpStatusCode } from "../constants/httpStatus";
 
 
 export class ResponseHandler {
 
-    public static success(res: Response, status: HttpStatusCode, data?: any, messsage?: string) {
+    public static success(res: Response, status: HttpStatusCode, data?: any, message?: string) {
         
         res.status(status).json({
             code: status,
-            messsage: messsage || HttpStatusMessage[status],
+            messsage: message || HttpStatusMessage[status],
             data,
         });
     }
 
 
-    public static error(res: Response, status: HttpStatusCode, messsage?: string, data?: any) {
+    public static error(res: Response, status: HttpStatusCode, message?: string, data?: any) {
 
         res.status(status).json({
             code: status,
-            message: messsage || HttpStatusMessage[status],
+            message: message || HttpStatusMessage[status],
             error: data || null,
         });
     }

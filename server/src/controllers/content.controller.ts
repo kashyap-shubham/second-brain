@@ -1,8 +1,11 @@
 import { Response, NextFunction } from "express";
 import { IContentService } from "../services/content.service";
-import { TypedRequestBody } from "./user.controller";
-import { CreateContentInput, UpdateContentInput } from "../schemas/content.schema";
 import { ResponseHandler } from "../utils/ResponseHandler";
+import { AuthRequest } from "../middlewares/userAuth";
+import { CreateContentInput, UpdateContentInput } from "../schema/content.schema";
+import { JwtPayload } from "jsonwebtoken";
+
+type TypedRequestBody<T> = AuthRequest & { body: T };
 
 export class ContentController {
   private readonly contentService: IContentService;
@@ -20,9 +23,10 @@ export class ContentController {
     this.getSharedContent = this.getSharedContent.bind(this);
   }
 
+  // Create content
   public async createContent(req: TypedRequestBody<CreateContentInput>, res: Response, next: NextFunction) {
     try {
-      const userId = (req as any).user?.id;
+      const userId = this.extractUserId(req);
       const content = await this.contentService.createContent({ ...req.body, userId });
       ResponseHandler.success(res, 201, content, "Content created successfully");
     } catch (err) {
@@ -30,9 +34,10 @@ export class ContentController {
     }
   }
 
-  public async getUserContent(req: any, res: Response, next: NextFunction) {
+  // Get all content for a user
+  public async getUserContent(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = req.user?.id;
+      const userId = this.extractUserId(req);
       const contents = await this.contentService.getContentByUser(userId);
       ResponseHandler.success(res, 200, contents, "Contents retrieved successfully");
     } catch (err) {
@@ -40,7 +45,7 @@ export class ContentController {
     }
   }
 
-  public async getContentById(req: any, res: Response, next: NextFunction) {
+  public async getContentById(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const content = await this.contentService.getContentById(req.params.id);
       ResponseHandler.success(res, 200, content, "Content retrieved successfully");
@@ -58,7 +63,7 @@ export class ContentController {
     }
   }
 
-  public async deleteContent(req: any, res: Response, next: NextFunction) {
+  public async deleteContent(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       await this.contentService.deleteContent(req.params.id);
       ResponseHandler.success(res, 200, null, "Content deleted successfully");
@@ -67,9 +72,9 @@ export class ContentController {
     }
   }
 
-  public async searchContent(req: any, res: Response, next: NextFunction) {
+  public async searchContent(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = req.user?.id;
+      const userId = this.extractUserId(req);
       const contents = await this.contentService.searchContent(userId, req.query.q as string);
       ResponseHandler.success(res, 200, contents, "Search results retrieved successfully");
     } catch (err) {
@@ -77,21 +82,38 @@ export class ContentController {
     }
   }
 
-  public async makeShareable(req: any, res: Response, next: NextFunction) {
+  public async makeShareable(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const content = await this.contentService.makeContentShareable(req.params.id);
-      ResponseHandler.success(res, 200, { shareId: content.shareId, url: `/share/${content.shareId}` }, "Content is now shareable");
+      ResponseHandler.success(
+        res,
+        200,
+        { shareId: content.shareId, url: `/share/${content.shareId}` },
+        "Content is now shareable"
+      );
     } catch (err) {
       next(err);
     }
   }
 
-  public async getSharedContent(req: any, res: Response, next: NextFunction) {
+  public async getSharedContent(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const content = await this.contentService.getContentByShareId(req.params.shareId);
       ResponseHandler.success(res, 200, content, "Shared content retrieved successfully");
     } catch (err) {
       next(err);
     }
+  }
+
+  // Helper method to safely extract userId
+  private extractUserId(req: AuthRequest): string {
+    if (!req.user || typeof req.user === "string") {
+      throw new Error("Invalid user payload");
+    }
+    const payload = req.user as JwtPayload & { id?: string };
+    if (!payload.id) {
+      throw new Error("User ID missing in token");
+    }
+    return payload.id;
   }
 }

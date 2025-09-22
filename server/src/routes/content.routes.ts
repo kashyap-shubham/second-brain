@@ -1,26 +1,43 @@
 import express from "express";
 import { ContentController } from "../controllers/content.controller";
 import { ContentService } from "../services/content.service";
-import { Validator } from "../middlewares/validator.middleware";
-import { createContentSchema, updateContentSchema } from "../schemas/content.schema";
-import { userAuth } from "../middlewares/userAuth.middleware";
+import { userAuth } from "../middlewares/userAuth";
+import { Validator } from "../middlewares/validator";
+import { createContentSchema, updateContentSchema } from "../schema/content.schema";
+
 
 const contentRouter = express.Router();
 const contentService = new ContentService();
 const contentController = new ContentController(contentService);
 
-// All routes are protected except shared content
-contentRouter.use(userAuth);
 
-contentRouter.post("/", Validator.validate(createContentSchema), contentController.createContent);
-contentRouter.get("/", contentController.getUserContent);
-contentRouter.get("/:id", contentController.getContentById);
-contentRouter.put("/:id", Validator.validate(updateContentSchema), contentController.updateContent);
-contentRouter.delete("/:id", contentController.deleteContent);
-contentRouter.get("/search", contentController.searchContent);
+contentRouter.route("/share/:shareId").get(contentController.getSharedContent);
 
-// Shareable link endpoints
-contentRouter.post("/:id/share", contentController.makeShareable);
-contentRouter.get("/share/:shareId", contentController.getSharedContent); // public
+
+// Apply auth middleware for all other routes
+contentRouter.use(userAuth
+
+);
+
+contentRouter
+  .route("/")
+  .post(Validator.validate(createContentSchema), contentController.createContent)
+  .get(contentController.getUserContent);
+
+  
+contentRouter
+  .route("/search")
+  .get(contentController.searchContent);
+
+
+contentRouter
+  .route("/:id")
+  .get(contentController.getContentById)
+  .put(Validator.validate(updateContentSchema), contentController.updateContent)
+  .delete(contentController.deleteContent);
+
+contentRouter
+  .route("/:id/share")
+  .post(contentController.makeShareable);
 
 export default contentRouter;
