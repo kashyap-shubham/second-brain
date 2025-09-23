@@ -57,3 +57,4 @@ if (process.argv[1].includes("server.ts")) {
   const server = new Server(process.env.PORT || 4000);
   server.start();
 }
+
