@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
+import cors from 'cors';
 import { database } from "./config/db";
 import { ErrorHandler } from "./middlewares/errorHandler";
 import userRouter from "./routes/user.routes";
@@ -13,10 +14,22 @@ export class Server {
   constructor(port: number | string = 4000) {
     this.app = express();
     this.port = port;
-
+    
+    this.initializeCors();
     this.initializeMiddlewares();
     this.initializeRoutes();
     this.initializeErrorHandling();
+  }
+
+  private initializeCors(): void {
+    this.app.use(
+    cors({
+      origin: "http://localhost:5173", // your React app
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true, // only if you need cookies
+    })
+    );
   }
 
   private initializeMiddlewares(): void {

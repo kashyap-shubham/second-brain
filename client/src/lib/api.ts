@@ -1,4 +1,4 @@
-export const API_URL = "http://localhost:5000/api" // adjust to your backend
+export const API_URL = "http://localhost:3000/api/v1" // adjust to your backend
 
 export async function apiRequest<T>(
   endpoint: string,

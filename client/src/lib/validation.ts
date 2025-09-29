@@ -29,5 +29,11 @@ export const signinSchema = z.object({
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 })
 
+export const linkSchema = z.object({
+  title: z.string().optional(),
+  url: z.string().url("Must be a valid URL"),
+})
+
 export type SignupData = z.infer<typeof signupSchema>
 export type SigninData = z.infer<typeof signinSchema>
+export type LinkData = z.infer<typeof linkSchema>
